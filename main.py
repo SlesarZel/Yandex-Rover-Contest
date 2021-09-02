@@ -11,7 +11,9 @@ def ReadInputConditions():
 
     #length of world
 
-    N = int(a[0])
+    N = int(a[0]) - 1
+
+    #coordinates from 0
 
 
     MaxTips = int(a[1])
@@ -37,7 +39,7 @@ def ReadInputConditions():
 
 def CountBots():
     global SumOfBots
-    SumOfBots = int(N // 15) + 1
+    SumOfBots = int(N // 3) + 1
     if SumOfBots > 100: #Count of bots 1..100
         SumOfBots = 100
     print("CountBots, N=",N," SumOfBots: ", SumOfBots)
@@ -66,13 +68,19 @@ def PlaceBots():
             x = 0
             y = N
 
+        else:
+            x = N
+            y = N
+
+        print(N)
+
         while map[x][y] == "#":
             y = y + 1
             if y >= N:
                 x = x + 1
                 y = 0
         botNum = i
-        Bots.extend([botNum, x, y, False]) #botNum, current X, current Y, busyFlag
+        Bots.extend([[botNum, x, y, False]]) #botNum, current X, current Y, busyFlag, X Y not from 1 but from 0 (sic!)
         mapWithBots[x][y] = "o"
 
 def ReadInputOrder():
@@ -85,18 +93,72 @@ def ReadInputOrder():
     b=[]
 
     for i in range(CountOfNewOrders):
-            b.extend([i+1+CountOfOrders,list(input().split(" "))]) #globalOrderNumber,input X Y start, X Y finish
-                                                                #учто ещё что координаты стартуют от 1, а массив от 0
+            b.extend([i+CountOfOrders,list(input().split(" "))]) #globalOrderNumber,input X Y start, X Y finish
+                                                                #учти ещё что координаты стартуют от 1, а массив от 0
     global UndeliveredOrders
     UndeliveredOrders.extend(b)
 
 
+def StartDeliverIteration():
+    OrdersToBotsAssign()
+    for i in range(60):     #1min = 60 steps of each bot
+        for BotNumber in range(SumOfBots):
+            BotStep(BotNumber)
+
+def OrdersToBotsAssign():
+    #пока что тупо номер заказа равен номеру бота
+    for i in range(SumOfBots):
+        N = i
+        NumOfOrder = i
+        if Bots[i][3] == False : #не занят заказом
+            Bots[N].extend(NumOfOrder) #в конце дописан номер заказа на борту
+            Bots[i][3] = True  # In delivery: busy=True
 
 
+def BotStep(BotNumber):
+    print("BotNumber: ", BotNumber)
 
-def GetOrderOnBoard():
+    CurrentCoordinates=[Bots[BotNumber][1], Bots[BotNumber][2]]
+    X = CurrentCoordinates[0]
+    Y = CurrentCoordinates[1]
+    #UndeliveredOrders = [GlobalNumberOfOrder,X start, Y start, X finish, Y finish]
+    #Bots[-1] = NumOfOrder  == GlobalNumberOfOrder
+    XX = UndeliveredOrders[Bots[-1]][1] - 1 #X not from 1 but from 0 (sic!)
+    YY = UndeliveredOrders[Bots[-1]][2] - 1 #Y not from 1 but from 0 (sic!)
+
+    #ЭТО БУДЕТ РАБОТАТЬ ТОЛЬКО БЕЗ ПРЕПЯТСТВИЙ
+    if X != XX :
+        if X < XX:
+            X = X + 1
+            print("Bot ", i, "step ", "RIGHT")
+        else:
+            X = X - 1
+            print("Bot ", i, "step ", "LEFT")
+
+    else:
+        if Y != YY:
+            if Y < YY:
+                Y = Y + 1
+                print("Bot ", i, "step ", "UP")
+            else:
+                Y = Y - 1
+                print("Bot ", i, "step ", "DOWN")
+
+    if X == XX:
+        if Y == YY:
+            print("Bot ", i, "deliver order ", Bots[-1])
+            DeliverOrderFinished(i)
+
+    #if map[x][y] = "#" :
+
+    CurrentCoordinates = [X, Y]
+    Bots[i][1] = CurrentCoordinates[0]
+    Bots[i][2] = CurrentCoordinates[1]
+
+
+def GetOrderOnBoard(BotNum):
     return 0
-    #Bots[BotNum].extend([[CountOfOrders[NumOfOrder]]])
+    #Bots[BotNum].extend([[UndeliveredOrders[NumOfOrder]]])
     #Bots[BotNum][3]=True #busyFlag
     #CountOfOrders
 
@@ -104,7 +166,7 @@ def GetOrderOnBoard():
     #flagBotIsBusy
 
 
-def DeliverOrderFinished():
+def DeliverOrderFinished(i):
     Bots[BotNum].pop(4)  #delete [NewOrder] from [botNum, x, y, busyFlag, [NewOrder]]
     Bots[BotNum][3] = False  # busyFlag
     #flagOrderDelivered
@@ -123,11 +185,11 @@ global CountOfNewOrders
 global UndeliveredOrders
 
 
-N=4
+N=4 - 1
 MaxTips=20
 CostC=10
-T=7
-D=7
+T=3
+D=2
 map=[['.', '.', '.', '.'],
      ['.', '#', '#', '#'],
      ['.', '.', '.', '.'],
@@ -148,7 +210,7 @@ print("start")
 CountBots()
 
 mapWithBots = [] #карта для размещения роверов (# - препятствие, o - робот, . - пустое пространство)
-mapWithBots = map[:]
+mapWithBots = map.copy()
 #map.copy() для копирования списка, а не ссылания на него !!!почему-то это не работает!!!
 
 PlaceBots()
@@ -168,5 +230,6 @@ print("Bots: ", Bots)
 
 for i in range(T):
     ReadInputOrder()
+    StartDeliverIteration()
 
 print("UndeliveredOrders: ",UndeliveredOrders)
