@@ -2,6 +2,73 @@ import struct
 import math
 
 
+"""class Rover():
+    def __init__(self):
+        self.x = 0
+        self.y = 0
+        self.serialNumber = 0
+        self.looking = UP
+        self.busy = False
+        self.loaded = False
+        self.orderNum = 0
+
+    def moveRover(self, x, y):
+        self.x = x
+        self.y = y
+
+    def getCoords(self):
+        return self.x, self.y"""""
+
+
+class Path():
+    def __init__(self, length=0, rover=None, toBase=False, path=[], toCargo=None):
+        self.lenght = length
+        self.rover = rover
+        self.toBase = toBase
+        self.path = path
+        self.toCargo = toCargo
+        # path = [[0,1],[0,2],[1,2],[2,2]]
+
+
+class Cargo():
+    def __init__(self, x=0, y=0, holdby=None, id=None, base=None):
+        self.x = x
+        self.y = y
+        self.holdby = holdby
+        self.id = id
+        self.base = base
+
+
+Cargo
+cargo
+
+class Base():
+    def __init__(self, x=0, y=0, id=None):
+        self.x = x
+        self.y = y
+        self.id = id
+
+
+class Rover():
+    def __init__(self, x=0, y=0, holding=None):
+        self.x = x
+        self.y = y
+        self.holding = holding
+
+    def move(self, x, y):
+        if abs(self.x - x) + abs(self.y - y) < 2:
+            if abs(self.x - x) < 2 and abs(self.y - y) < 2:
+                self.x = x
+                self.y = y
+            else:
+                print("can't move rover at", self.x, ' ', self.y)
+
+    def getCargo(self, cargo):
+        self.holding = cargo
+        сargo.holdby = self
+
+    def putCargo(self):
+        self.holding = None
 
 
 
@@ -233,3 +300,12 @@ for i in range(T):
     StartDeliverIteration()
 
 print("UndeliveredOrders: ",UndeliveredOrders)
+class Rover():
+    __init__():
+        self.x = 0
+        self.y = 0
+    def setCoords(self,x=0,y=0):
+        self.x = x
+        self.y = y
+    def getCoords(self):
+        return self.x,self.y
